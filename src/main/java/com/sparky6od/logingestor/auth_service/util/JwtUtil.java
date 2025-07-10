@@ -12,6 +12,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    // TODO: Guardar la secret de produccion en un Vault (Ver como realizarlo)
     @Value("${jwt.secret}")
     private String secret;
 
