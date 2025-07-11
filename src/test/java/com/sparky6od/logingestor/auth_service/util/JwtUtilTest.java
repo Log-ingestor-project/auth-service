@@ -1,5 +1,6 @@
 package com.sparky6od.logingestor.auth_service.util;
 
+import com.sparky6od.logingestor.auth_service.dto.AuthRequest;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,11 +30,11 @@ public class JwtUtilTest {
     @Test
     void generateToken_ShouldCreateValidToken() {
         // Given
-        String clientId = "test-client";
-        String serviceName = "test-service";
-
-        // When
-        String token = jwtUtil.generateToken(clientId, serviceName);
+        String token = jwtUtil.generateToken(new AuthRequest(
+                "test-client",
+                "test-client-secret",
+                "test-service",
+                "ADMIN,USER"));
 
         // Then
         assertNotNull(token);
@@ -46,7 +47,11 @@ public class JwtUtilTest {
         // Given
         String clientId = "test-client";
         String serviceName = "test-service";
-        String token = jwtUtil.generateToken(clientId, serviceName);
+        String token = jwtUtil.generateToken(new AuthRequest(
+                clientId,
+                "test-client-secret",
+                serviceName,
+                "ADMIN,USER"));
 
         // When
         Claims claims = jwtUtil.validateToken(token);
@@ -65,7 +70,6 @@ public class JwtUtilTest {
         String invalidToken = "invalid.token.here";
 
         // When & Then
-        // TODO: Agregar un Controller Advice para manejar esta exception
         assertThrows(JwtException.class, () -> jwtUtil.validateToken(invalidToken));
     }
 
@@ -75,12 +79,16 @@ public class JwtUtilTest {
         jwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(jwtUtil, "secret", SECRET);
         ReflectionTestUtils.setField(jwtUtil, "expirationMs", 1); // Set expiration to 1ms
-        String token = jwtUtil.generateToken("test-client", "test-service");
+        String token = jwtUtil.generateToken(new AuthRequest(
+                "test-client",
+                "test-client-secret",
+                "test-service",
+                "ADMIN,USER")
+        );
 
         // When & Then
         try {
             Thread.sleep(10); // Wait for token to expire
-            // TODO: Agregar un Controller Advice para manejar esta exception
             assertThrows(JwtException.class, () -> jwtUtil.validateToken(token));
         } catch (InterruptedException e) {
             fail("Test interrupted");

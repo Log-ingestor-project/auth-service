@@ -1,5 +1,6 @@
 package com.sparky6od.logingestor.auth_service.util;
 
+import com.sparky6od.logingestor.auth_service.dto.AuthRequest;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -23,10 +24,11 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String clientId, String serviceName) {
+    public String generateToken(AuthRequest request) {
         return Jwts.builder()
-                .subject(clientId)
-                .claim("service", serviceName)
+                .subject(request.getClientId())
+                .claim("service", request.getServiceName())
+                .claim("roles", request.getRoles())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigninKey())
